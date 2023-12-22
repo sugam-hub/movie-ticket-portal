@@ -1,10 +1,12 @@
-import React, {useState} from 'react';
-import { Text, View, StyleSheet, ScrollView, StatusBar, ImageBackground,TouchableOpacity, FlatList, ToastAndroid } from 'react-native';
+import React, {useEffect, useState} from 'react';
+import { Text, View, StyleSheet, ScrollView, StatusBar, ImageBackground,TouchableOpacity, FlatList, ToastAndroid, ActivityIndicator } from 'react-native';
 import { BORDERRADIUS, COLORS, FONTFAMILY, FONTSIZE, SPACING } from '../theme/theme';
 import LinearGradient from 'react-native-linear-gradient';
 import AppHeader from '../components/AppHeader';
 import CustomIcon from '../components/CustomIcon';
 import EncryptedStorage from 'react-native-encrypted-storage';
+import { useMutation, useQuery } from 'react-query';
+import { BookTicket, getAllTickets } from '../api/ticket/ticket';
 
 const timeArray: string[] = [
   "10:30",
@@ -29,39 +31,42 @@ const generateDate = () => {
   return weekdays;
 }
 
-const generateSeats = () => {
-  let numRow = 8;
-  let numCol = 3;
-  let rowArray = [];
-  let start = 1;
-  let reachnine = false;
-
-  for(let i = 0; i < numRow; i++){
-    let columnArray = [];
-    for (let j=0; j < numCol; j++){
-      let seatObject = {
-        number: start,
-        taken: Boolean(Math.round(Math.random())),
-        selected: false,
-      }
-      columnArray.push(seatObject);
-      start++;
-    }
-    if(i==3){
-      numCol += 2;
-    }
-    if(numCol < 9 && !reachnine){
-      numCol += 2;
-    }else{
-      reachnine = true;
-      numCol -= 2;
-    }
-    rowArray.push(columnArray);
-  }
-  return rowArray;
-}
 
 const SeatBookingScreen = ({navigation, route}: any) => {
+
+  const generateSeats = () => {
+    let numRow = 8;
+    let numCol = 3;
+    let rowArray = [];
+    let start = 1;
+    let reachnine = false;
+  
+    for(let i = 0; i < numRow; i++){
+      let columnArray = [];
+      for (let j=0; j < numCol; j++){
+        let seatObject = {
+          number: start,
+          // taken: Boolean(Math.round(Math.random())),
+          taken: 0,
+          selected: false,
+        }
+        columnArray.push(seatObject);
+        start++;
+      }
+      if(i==3){
+        numCol += 2;
+      }
+      if(numCol < 9 && !reachnine){
+        numCol += 2;
+      }else{
+        reachnine = true;
+        numCol -= 2;
+      }
+      columnArray.sort((a, b) => a.number - b.number);
+      rowArray.push(columnArray);
+    }
+    return rowArray;
+  };
   const [dateArray, setDateArray] = useState<any[]>(generateDate());
   const [selectedDateIndex, setSelectedDateIndex] = useState<any>()
   const [price, setPrice] = useState<number>(0)
@@ -69,6 +74,22 @@ const SeatBookingScreen = ({navigation, route}: any) => {
   const [twoDSeatArray, setTwoDSeatArray] = useState<any[][]>(generateSeats());
   const [selectedSeatArray, setSelectedSeatArray] = useState([]);
   const [selectedTimeIndex, setSelectedTimeIndex] = useState<any>();
+
+  const mutation = useMutation(BookTicket, {
+    onSuccess: () => {  
+    },
+    onError: (error: any) => {
+
+    }
+  })
+
+  const {data: ticketData, isLoading, isError} = useQuery("ticketData", getAllTickets);
+
+  if(isLoading){
+    return (
+      <ActivityIndicator />
+    )
+  }
 
   const selectSeat = (index: number, subindex: number, num: number) => {
     if(!twoDSeatArray[index][subindex].taken){
@@ -85,7 +106,7 @@ const SeatBookingScreen = ({navigation, route}: any) => {
           setSelectedSeatArray(array);
         }
       }
-      setPrice(array.length * 5.0); //price of ticket
+      setPrice(array.length * 5.0);
       setTwoDSeatArray(temp);
     }
   }
@@ -95,12 +116,13 @@ const SeatBookingScreen = ({navigation, route}: any) => {
       timeArray[selectedTimeIndex] !== undefined && 
       dateArray[selectedDateIndex] !== undefined){
         try{
-          await EncryptedStorage.setItem('ticket', JSON.stringify({
-            seatArray: selectedSeatArray,
+          mutation.mutate({
+            movie_name: route.params.movieName,
+            seat_number: selectedSeatArray.join(", "),
+            date: `${dateArray[selectedDateIndex].date} ${dateArray[selectedDateIndex].day}`,
             time: timeArray[selectedTimeIndex],
-            date: dateArray[selectedDateIndex],
-            ticketImage: route.params.PosterImage
-          }));
+            price: price,
+          })
         }catch(error){
           console.log("Something went wrong while storing in bookseat functions.")
         }

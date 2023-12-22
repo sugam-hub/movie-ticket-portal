@@ -6,18 +6,25 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 const WelcomeScreen = ({navigation}: any) => {
     const [animating, setAnimating] = useState(true);
 
-    useEffect(()=> {
-        setTimeout(()=> {
-            setAnimating(false);
-
-            //checking user_id and authenticating
-            AsyncStorage.getItem('user_id').then((value)=> {
+    useEffect(() => {
+        const checkAuthentication = async () => {
+          try {
+            setTimeout(() => {
+              setAnimating(false);
+              AsyncStorage.getItem('accessToken').then((value) => {
                 navigation.replace(
-                    value === null ? "Auth" : "Tab"
-                )
-            })
-        }, 5000)
-    }, [])
+                  value === null ? "Auth" : "Tab"
+                );
+              });
+            }, 5000);
+          } catch (error) {
+            console.error('Error checking authentication:', error);
+          }
+        };
+      
+        checkAuthentication();
+      }, []);
+      
 
   return (
     <View style={styles.container}>
@@ -28,7 +35,6 @@ const WelcomeScreen = ({navigation}: any) => {
     </View>
   );
 };
-
 
 const styles = StyleSheet.create({
     container: {
@@ -43,7 +49,6 @@ const styles = StyleSheet.create({
         height: 80
     },
     logo: {
-        // flex: 1,
          alignItems: "center",
          justifyContent: "center"
     }

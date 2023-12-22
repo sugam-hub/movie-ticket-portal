@@ -1,29 +1,27 @@
-import React, { useEffect, useState } from 'react';
-import { Text, View, StyleSheet, StatusBar, ImageBackground, Image } from 'react-native';
-import EncryptedStorage from 'react-native-encrypted-storage';
+import React from 'react';
+import { Text, View, StyleSheet, StatusBar, ScrollView, ActivityIndicator } from 'react-native';
 import AppHeader from '../components/AppHeader';
-import { BORDERRADIUS, COLORS, FONTFAMILY, FONTSIZE, SPACING } from '../theme/theme';
-import LinearGradient from 'react-native-linear-gradient';
-import CustomIcon from '../components/CustomIcon';
+import { COLORS, SPACING } from '../theme/theme';
+import { useQuery } from 'react-query';
+import { getAllTickets } from '../api/ticket/ticket';
+import { useFocusEffect } from '@react-navigation/native';
 
 const TicketScreen = ({navigation, route}: any) => {
-  const [ticketData, setTicketData] = useState<any>(route.params);
 
-  useEffect(()=> {
-    (async () => {
-      try{
-        const ticket = await EncryptedStorage.getItem('ticket');
-        if(ticket !== undefined && ticket !== null){
-          setTicketData(JSON.parse(ticket))
-        }
-      }catch(error){
-        console.error("Something went wrong while getting data", error);
-      }
-    })();
-  }, [])
+  const {data: ticketData, isLoading, isError, refetch} = useQuery("ticketData", getAllTickets, {
+    staleTime: 3000,
+  });
 
-  if(ticketData !== route.params && route.params != undefined ){
-    setTicketData(route.params)
+  useFocusEffect(
+    React.useCallback(()=> {
+      refetch();
+    }, [refetch])
+  )
+
+  if(isLoading){
+    return (
+      <ActivityIndicator />
+    )
   }
 
   if(ticketData == undefined || ticketData == null){
@@ -36,161 +34,66 @@ const TicketScreen = ({navigation, route}: any) => {
             header={'My Tickets'}
             action={() => navigation.goBack()}
           />  
+          <Text>No tickets available</Text>
       </View>
     </View>
     )
   }
-
+  
   return (
-    <View style={styles.container}> 
+    <ScrollView style={styles.container}> 
         <StatusBar hidden />
         <View style={styles.appHeaderContainer}>
           <AppHeader
             name="close"
             header={'My Tickets'}
             action={() => navigation.goBack()}
-          />  
+            />  
       </View>
-
-      <View style={styles.ticketContainer}>
-        <ImageBackground source={{uri: ticketData?.ticketImage}} style={styles.ticketBGImage}>
-          <LinearGradient colors={[COLORS.OrangeRGBA0, COLORS.Orange]} style={styles.linearGradient}>
-            <View style={[styles.blackCircle, {position: "absolute", bottom: -40, left: -40 }]}></View>
-            <View style={[styles.blackCircle, {position: "absolute", bottom: -40, right: -40 }]}></View>
-          </LinearGradient>
-        </ImageBackground>
-        <View style={styles.linear}></View>
-        <View style={styles.ticketFooter}>
-        <View style={[styles.blackCircle, {position: "absolute", top: -40, left: -40 }]}></View>
-        <View style={[styles.blackCircle, {position: "absolute", top: -40, right: -40 }]}></View>
-          <View style={styles.ticketDateContainer}>
-            <View style={styles.subtitleContainer}>
-              <Text style={styles.dateTitle}>{ticketData?.date.date}</Text>
-              <Text style={styles.subtitle}>{ticketData?.date.day}</Text>
-            </View>
-            <View style={styles.subtitleContainer}>
-              <CustomIcon name='clock' style={styles.clockIcon} />
-              <Text style={styles.subtitle}>{ticketData?.time}</Text>
-            </View>
-          </View>
-          <View style={styles.ticketSeatContainer}>
-          <View style={styles.subtitleContainer}>
-              <Text style={styles.subheading}>Hall</Text>
-              <Text style={styles.subtitle}>02</Text>
-            </View>
-            <View style={styles.subtitleContainer}>
-              <Text style={styles.subheading}>Row</Text>
-              <Text style={styles.subtitle}>04</Text>
-            </View>
-            <View style={styles.subtitleContainer}>
-              <Text style={styles.subheading}>Seats</Text>
-              <Text style={styles.subtitle}>
-                {ticketData?.seatArray.slice(1,4).map((item: any, index: number, arr: any)=>{
-                  return (item + (index == arr.length-1 ? "" : ", "))
-                })}
-              </Text>
-            </View>
-          </View>
-          <Image source={require("../assets/image/barcode.png")}
-           style={styles.barcodeImage} />
+    
+      {ticketData && ticketData.data.map((item: any)=> (
+        <View style={styles.ticketContainer} key={item.id}> 
+          <React.Fragment key={item.id}>
+            <Text style={styles.ticketText}>Movie Name: {item.movie_name}</Text>
+            <Text style={styles.ticketText}>Seat Number: {item.seat_number}</Text>
+            <Text style={styles.ticketText}>Date: {item.date}</Text>
+            <Text style={styles.ticketText}>Time: {item.time}</Text>
+          </React.Fragment>
         </View>
-      </View>
-    </View>
-  );
-};
-
-
-const styles = StyleSheet.create({
+      ))}
+    </ScrollView>
+    );
+  };
+  
+  const styles = StyleSheet.create({
     container: {
       display: "flex",
       flex: 1,
       backgroundColor: COLORS.Black,
     },
     appHeaderContainer: {
-      marginHorizontal: SPACING.space_36,
+      marginHorizontal: SPACING.space_2,
       marginTop: SPACING.space_20 ,
-      // marginBottom: SPACING.space_20* 2
     },
     ticketContainer: {
-      flex: 1,
-      justifyContent: "center",
-    },
-    ticketBGImage: {
-      alignSelf: "center",
-      width: 300,
-      aspectRatio: 1.4/2,
-      borderTopLeftRadius: BORDERRADIUS.radius_25,
-      borderTopRightRadius: BORDERRADIUS.radius_25,
-      overflow: 'hidden',
-      justifyContent: "flex-end"
-    },
-    linearGradient: {
-      height: "70%",
-    },
-    linear: {
-      borderTopColor: COLORS.Black,
-      borderTopWidth: 3,
-      width: 300,
-      alignSelf: "center",
-      backgroundColor: COLORS.Orange,
-      borderStyle: "dashed"
-    },
-    ticketFooter: {
-      backgroundColor: COLORS.Orange,
-      width: 300,
-      alignSelf: 'center',
-      alignItems: "center",
-      paddingBottom: SPACING.space_36,
-      borderBottomLeftRadius: BORDERRADIUS.radius_25,
-      borderBottomRightRadius: BORDERRADIUS.radius_25,
-    },
-    ticketDateContainer: {
-      flexDirection: "row",
-      gap: SPACING.space_36,
-      alignItems: "center",
-      justifyContent: "center",
-      marginVertical: SPACING.space_10,
-    },
-    dateTitle: {
-      fontFamily: FONTFAMILY.poppins_medium,
-      fontSize: FONTSIZE.size_24,
-      color: COLORS.White,
-    },
-    subtitle: {
-      fontFamily: FONTFAMILY.poppins_regular,
-      fontSize: FONTSIZE.size_14,
-      color: COLORS.White,
-    },
-    subheading: {
-      fontFamily: FONTFAMILY.poppins_medium,
-      fontSize: FONTSIZE.size_18,
-      color: COLORS.White,
-    },
-    subtitleContainer: {
-      alignItems: "center",
-    },
-    ticketSeatContainer: {
-      flexDirection: "row",
-      gap: SPACING.space_36,
-      alignItems: "center",
-      justifyContent: "center",
-      marginVertical: SPACING.space_10,
-    },
-    clockIcon: {
-      fontSize: FONTSIZE.size_24,
-      color: COLORS.White,
-      paddingBottom: SPACING.space_10
-    },
-    barcodeImage: {
-      height: 50,
-      aspectRatio: 158/52,
-    },
-    blackCircle: {
-      width: 80,
-      height: 80,
-      borderRadius: BORDERRADIUS.radius_20 * 4,
+      height: "auto",
+      width: "auto",
       backgroundColor: COLORS.Black,
-    }
-});
+      padding: 5,
+      margin: 10,
+      borderRadius: 8,
+      borderColor: '#ccc',
+      borderWidth: 1,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.2,
+      shadowRadius: 2,
+      elevation: 3,
+    },
+    ticketText: {
+      fontSize: 16,
+      marginBottom: 5,
+    },
+  });
 
 export default TicketScreen;

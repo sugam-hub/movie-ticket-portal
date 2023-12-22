@@ -14,7 +14,7 @@ const Tab = createBottomTabNavigator();
 
 const TabNavigator = () => {
     return(
-        <Tab.Navigator screenOptions={{
+        <Tab.Navigator initialRouteName="HomeScreen" screenOptions={{
             tabBarHideOnKeyboard: true,
             headerShown: false,
             tabBarStyle: {
@@ -42,23 +42,23 @@ const TabNavigator = () => {
                         </View>
                     )
                 }
-            }}/>
-            <Tab.Screen name="UserAccount" component={UserAccountScreen} options={{
-                tabBarShowLabel: false,
-                tabBarIcon: ({focused, color, size}) => {
-                    return(
-                        <View style={[styles.activeTabBackground, focused ? {backgroundColor: COLORS.Orange}: {}]}>
-                            <CustomIcon name="user" color={COLORS.White} size={FONTSIZE.size_30} />
-                        </View>
-                    )
-                }
-            }}/>
+            }}/>   
             <Tab.Screen name="Map" component={MapScreen} options={{
                 tabBarShowLabel: false,
                 tabBarIcon: ({focused, color, size}) => {
                     return(
                         <View style={[styles.activeTabBackground, focused ? {backgroundColor: COLORS.Orange}: {}]}>
                             <MaterialIcons name="map" color={COLORS.White} size={FONTSIZE.size_30} />
+                        </View>
+                    )
+                }
+            }}/>
+               <Tab.Screen name="UserAccount" component={UserAccountScreen} options={{
+                tabBarShowLabel: false,
+                tabBarIcon: ({focused, color, size}) => {
+                    return(
+                        <View style={[styles.activeTabBackground, focused ? {backgroundColor: COLORS.Orange}: {}]}>
+                            <CustomIcon name="user" color={COLORS.White} size={FONTSIZE.size_30} />
                         </View>
                     )
                 }

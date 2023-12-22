@@ -2,6 +2,10 @@ import React, { createRef, useState } from 'react';
 import { Text, View, StyleSheet, Alert, KeyboardAvoidingView, Keyboard, TouchableOpacity } from 'react-native';
 import Loader from '../components/Loader';
 import { ScrollView, TextInput } from 'react-native-gesture-handler';
+import { useMutation } from 'react-query';
+import { register } from '../api/auth/auth';
+import axios from 'axios';
+import { BORDERRADIUS, COLORS, FONTFAMILY, FONTSIZE, SPACING } from '../theme/theme';
 
 const RegisterScreen = ({navigation}: any, {props}: any) => {
     const [userName, setUserName] = useState<string>("");
@@ -13,6 +17,17 @@ const RegisterScreen = ({navigation}: any, {props}: any) => {
 
     const emailInputRef = createRef();
     const passwordInputRef = createRef();
+
+    const mutation = useMutation(register, {
+      onSuccess: () => {
+        setLoading(false);
+        navigation.navigate('LoginScreen');
+      },
+      onError: (error: any) => {
+        setLoading(false);
+        setErrorText(error.message || 'Registration Failed: Please try again');
+      },
+    });
     
     const handleSubmitButton = () => {
         setErrorText("");
@@ -28,9 +43,15 @@ const RegisterScreen = ({navigation}: any, {props}: any) => {
             Alert.alert("Please fill password")
             return;
         }
+        mutation.mutate({
+          username: userName,
+          email: email,
+          password: password,
+        });
+        setLoading(true);
     }
   return (
-    <View style={{flex: 1, backgroundColor: '#307ecc'}}>
+    <View style={{flex: 1, backgroundColor: COLORS.Black}}>
       <Loader loading={loading} />
       <ScrollView
         keyboardShouldPersistTaps="handled"
@@ -52,7 +73,7 @@ const RegisterScreen = ({navigation}: any, {props}: any) => {
               autoCapitalize="sentences"
               returnKeyType="next"
               onSubmitEditing={() =>
-                emailInputRef.current && emailInputRef.current.focus()
+                emailInputRef.current 
               }
               blurOnSubmit={false}
             />
@@ -65,11 +86,11 @@ const RegisterScreen = ({navigation}: any, {props}: any) => {
               placeholder="Enter Email"
               placeholderTextColor="#8b9cb5"
               keyboardType="email-address"
-              ref={emailInputRef}
+              // ref={emailInputRef}
               returnKeyType="next"
               onSubmitEditing={() =>
-                passwordInputRef.current &&
-                passwordInputRef.current.focus()
+                passwordInputRef.current 
+                // passwordInputRef.current.focus()
               }
               blurOnSubmit={false}
             />
@@ -83,7 +104,7 @@ const RegisterScreen = ({navigation}: any, {props}: any) => {
               underlineColorAndroid="#f000"
               placeholder="Enter Password"
               placeholderTextColor="#8b9cb5"
-              ref={passwordInputRef}
+              // ref={passwordInputRef}
               returnKeyType="next"
               secureTextEntry={true}
               onSubmitEditing={Keyboard.dismiss}
@@ -103,6 +124,14 @@ const RegisterScreen = ({navigation}: any, {props}: any) => {
             <Text style={styles.buttonTextStyle}>REGISTER</Text>
             
           </TouchableOpacity>
+
+          {/* <TouchableOpacity
+            style={styles.buttonStyle}
+            activeOpacity={0.5}
+            onPress={handleSubmitButton1}>
+            <Text style={styles.buttonTextStyle}>REGISTER1</Text> */}     
+          {/* </TouchableOpacity> */}
+          
           <TouchableOpacity>
           <Text style={styles.registerTextStyle} onPress={() => {
                         navigation.navigate("LoginScreen")
@@ -125,22 +154,17 @@ const styles = StyleSheet.create({
         margin: 10,
       },
       buttonStyle: {
-        backgroundColor: '#7DE24E',
-        borderWidth: 0,
-        color: '#FFFFFF',
-        borderColor: '#7DE24E',
-        height: 40,
         alignItems: 'center',
-        borderRadius: 30,
-        marginLeft: 35,
-        marginRight: 35,
-        marginTop: 20,
-        marginBottom: 20,
+        marginVertical: SPACING.space_36,
       },
       buttonTextStyle: {
-        color: '#FFFFFF',
-        paddingVertical: 10,
-        fontSize: 16,
+        borderRadius: BORDERRADIUS.radius_25 * 2,
+        paddingHorizontal: SPACING.space_24,
+        paddingVertical: SPACING.space_10,
+        backgroundColor: COLORS.Orange,
+        fontFamily: FONTFAMILY.poppins_medium,
+        fontSize: FONTSIZE.size_14,
+        color: COLORS.White,
       },
       inputStyle: {
         flex: 1,

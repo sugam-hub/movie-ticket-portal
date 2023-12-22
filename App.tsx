@@ -1,4 +1,6 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { QueryClient, QueryClientProvider} from 'react-query';
+
 import { Text, View, StyleSheet } from 'react-native';
 import WelcomeScreen from './src/screens/WelcomeScreen';
 import LoginScreen from './src/screens/LoginScreen';
@@ -11,15 +13,15 @@ import HomeScreen from './src/screens/HomeScreen';
 import TabNavigator from './src/navigators/TabNavigator';
 import MovieDetailsScreen from './src/screens/MovieDetailsScreen';
 import SeatBookingScreen from './src/screens/SeatBookingScreen';
-import TicketScreen from './src/screens/TicketScreen';
-
 
 const Stack = createStackNavigator();
 const NativeStack = createNativeStackNavigator();
 
+const queryClient = new QueryClient();
+
 const Auth = () => {
   return(
-    <Stack.Navigator initialRouteName='WelcomeScreen'>
+    <Stack.Navigator initialRouteName='Auth'>
       <Stack.Screen name='LoginScreen' component={LoginScreen} options={{headerShown: false}} />
       <Stack.Screen name='RegisterScreen' component={RegisterScreen} options={{headerShown: false}} />
       <Stack.Screen name='HomeScreen' component={HomeScreen} options={{headerShown: false}} />
@@ -27,9 +29,9 @@ const Auth = () => {
   )
 }
 
-
 const App = () => {
   return (
+    <QueryClientProvider client={queryClient}>
     <NavigationContainer>
       <NativeStack.Navigator initialRouteName='WelcomeScreen' screenOptions={{headerShown: false}}>
         <NativeStack.Screen name="Tab" component={TabNavigator} options={{animation: "default"}}/>
@@ -39,6 +41,7 @@ const App = () => {
         <NativeStack.Screen name='Auth' component={Auth} options={{headerShown: false, animation: "fade_from_bottom"}}/>
       </NativeStack.Navigator>
     </NavigationContainer>
+    </QueryClientProvider>
   );
 };
 
