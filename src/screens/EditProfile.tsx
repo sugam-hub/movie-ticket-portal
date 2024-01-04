@@ -1,55 +1,19 @@
 import React, { createRef, useState } from 'react';
-import { Text, View, StyleSheet, Alert, KeyboardAvoidingView, Keyboard, TouchableOpacity } from 'react-native';
+import { Text, View, StyleSheet, Alert, KeyboardAvoidingView, Keyboard, TouchableOpacity, ScrollView, TextInput } from 'react-native';
 import Loader from '../components/Loader';
-import { ScrollView, TextInput } from 'react-native-gesture-handler';
-import { useMutation } from 'react-query';
-import { register } from '../api/auth/auth';
-import axios from 'axios';
 import { BORDERRADIUS, COLORS, FONTFAMILY, FONTSIZE, SPACING } from '../theme/theme';
+import AppHeader from '../components/AppHeader';
 
-const RegisterScreen = ({navigation}: any, {props}: any) => {
+const EditProfileScreen = ({navigation}: any) => {
     const [userName, setUserName] = useState<string>("");
-    const [email, setEmail] = useState<string>("");
     const [password, setPassword] = useState<string>("");
+    const [confirmPassword, setConfirmPassword] = useState<string>("");
     const [errorText, setErrorText] = useState<string>("");
-    const [loading, setLoading] = useState<boolean>(false)
-    const [isRegistrationSuccess, setIsRegistrationSuccess] = useState<boolean>(false);
+    const [loading, setLoading] = useState<boolean>(false);
 
     const emailInputRef = createRef();
     const passwordInputRef = createRef();
 
-    const mutation = useMutation(register, {
-      onSuccess: () => {
-        setLoading(false);
-        navigation.navigate('LoginScreen');
-      },
-      onError: (error: any) => {
-        setLoading(false);
-        setErrorText(error.message || 'Registration Failed: Please try again');
-      },
-    });
-    
-    const handleSubmitButton = () => {
-        setErrorText("");
-        if(!userName){
-            Alert.alert("Please fill name")
-            return;
-        }
-        if(!email){
-            Alert.alert("Please fill email")
-            return;
-        }
-        if(!password){
-            Alert.alert("Please fill password")
-            return;
-        }
-        mutation.mutate({
-          username: userName,
-          email: email,
-          password: password,
-        });
-        setLoading(true);
-    }
   return (
     <View style={{flex: 1, backgroundColor: COLORS.Black}}>
       <Loader loading={loading} />
@@ -59,16 +23,23 @@ const RegisterScreen = ({navigation}: any, {props}: any) => {
           justifyContent: 'center',
           alignContent: 'center',
         }}>
-        <View style={{alignItems: 'center', marginTop: 40, marginBottom: 120}}>
-          <Text style={{width: "100%", marginTop: 20, marginLeft:130, color:"#FFFFFF", fontSize: 30, fontWeight: "bold"}}>BOOK YOUR TICKET</Text>
-        </View>
+            <View style={styles.appHeaderContainer}>
+          <AppHeader
+            name="close"
+            header={'Edit Your Profile'}
+            action={() => navigation.goBack()}
+          />  
+      </View>
+        {/* <View style={{alignItems: 'center', marginTop: 40, marginBottom: 120}}>
+          <Text style={{width: "100%", marginTop: 20, marginLeft:130, color:"#FFFFFF", fontSize: 30, fontWeight: "bold"}}>Edit Your Profile</Text>
+        </View> */}
         <KeyboardAvoidingView enabled>
           <View style={styles.SectionStyle}>
             <TextInput
               style={styles.inputStyle}
               onChangeText={(userName) => setUserName(userName)}
               underlineColorAndroid="#f000"
-              placeholder="Enter Name"
+              placeholder="Enter New Userame"
               placeholderTextColor="#8b9cb5"
               autoCapitalize="sentences"
               returnKeyType="next"
@@ -81,16 +52,13 @@ const RegisterScreen = ({navigation}: any, {props}: any) => {
           <View style={styles.SectionStyle}>
             <TextInput
               style={styles.inputStyle}
-              onChangeText={(email) => setEmail(email)}
+              onChangeText={(password) => setPassword(password)}
               underlineColorAndroid="#f000"
-              placeholder="Enter Email"
+              placeholder="Change Password"
               placeholderTextColor="#8b9cb5"
-              keyboardType="email-address"
-              // ref={emailInputRef}
               returnKeyType="next"
               onSubmitEditing={() =>
                 passwordInputRef.current 
-                // passwordInputRef.current.focus()
               }
               blurOnSubmit={false}
             />
@@ -99,12 +67,11 @@ const RegisterScreen = ({navigation}: any, {props}: any) => {
             <TextInput
               style={styles.inputStyle}
               onChangeText={(password) =>
-                setPassword(password)
+                setConfirmPassword(password)
               }
               underlineColorAndroid="#f000"
-              placeholder="Enter Password"
+              placeholder="Confirm new password"
               placeholderTextColor="#8b9cb5"
-              // ref={passwordInputRef}
               returnKeyType="next"
               secureTextEntry={true}
               onSubmitEditing={Keyboard.dismiss}
@@ -120,22 +87,15 @@ const RegisterScreen = ({navigation}: any, {props}: any) => {
           <TouchableOpacity
             style={styles.buttonStyle}
             activeOpacity={0.5}
-            onPress={handleSubmitButton}>
-            <Text style={styles.buttonTextStyle}>REGISTER</Text>
-            
+            >
+            <Text style={styles.buttonTextStyle}>Edit my profile</Text>
           </TouchableOpacity>
-          
-          <TouchableOpacity>
-          <Text style={styles.registerTextStyle} onPress={() => {
-                        navigation.navigate("LoginScreen")
-                    }}>Already Registered ? Login</Text>
-          </TouchableOpacity>
+         
         </KeyboardAvoidingView>
       </ScrollView>
     </View>
   );
 };
-
 
 const styles = StyleSheet.create({
     SectionStyle: {
@@ -187,6 +147,11 @@ const styles = StyleSheet.create({
         alignSelf: 'center',
         padding: 10,
     },
+    appHeaderContainer: {
+        marginHorizontal: SPACING.space_36,
+        marginTop: SPACING.space_20 ,
+        marginBottom: SPACING.space_20 * 3,
+      },
 });
 
-export default RegisterScreen;
+export default EditProfileScreen;

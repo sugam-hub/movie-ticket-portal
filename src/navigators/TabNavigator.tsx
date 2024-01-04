@@ -9,12 +9,11 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { View, StyleSheet } from "react-native";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons"
 
-
 const Tab = createBottomTabNavigator();
 
 const TabNavigator = () => {
     return(
-        <Tab.Navigator initialRouteName="HomeScreen" screenOptions={{
+        <Tab.Navigator initialRouteName="Home" screenOptions={{
             tabBarHideOnKeyboard: true,
             headerShown: false,
             tabBarStyle: {

@@ -20,7 +20,9 @@ const TicketScreen = ({navigation, route}: any) => {
 
   if(isLoading){
     return (
-      <ActivityIndicator />
+      <View style={styles.loadingContainer}>
+      <ActivityIndicator size={'large'} color={COLORS.Orange} />
+    </View>
     )
   }
 
@@ -93,6 +95,11 @@ const TicketScreen = ({navigation, route}: any) => {
     ticketText: {
       fontSize: 16,
       marginBottom: 5,
+    },
+    loadingContainer: {
+      flex: 1,
+      alignSelf: 'center',
+      justifyContent: 'center',
     },
   });
 

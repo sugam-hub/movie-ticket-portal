@@ -7,6 +7,7 @@ import CustomIcon from '../components/CustomIcon';
 import EncryptedStorage from 'react-native-encrypted-storage';
 import { useMutation, useQuery } from 'react-query';
 import { BookTicket, getAllTickets } from '../api/ticket/ticket';
+import { getBookedSeats } from '../api/bookedSeats/bookedSeats';
 
 const timeArray: string[] = [
   "10:30",
@@ -34,6 +35,8 @@ const generateDate = () => {
 
 const SeatBookingScreen = ({navigation, route}: any) => {
 
+
+  const {data} = useQuery("bookedseats", getBookedSeats)
   const generateSeats = () => {
     let numRow = 8;
     let numCol = 3;

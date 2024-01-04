@@ -7,31 +7,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getUserId, hasTokenExpired, getInfo, getUserInfo } from '../utils/Helpers';
 
 const UserAccountScreen = ({navigation}: any) => {
-  // const [userId, setUserId] = useState<string | null>(null);
-  // const [userInfo, setUserInfo] = useState<any | null>(null);
-  // const [tokenInfo, setTokenInfo] = useState<any | null>(null);
-  // const [isTokenExpired, setIsTokenExpired] = useState<boolean>(false);
-
-  // useEffect(() => {
-  //   const fetchTokenInfo = async () => {
-  //     const id = await getUserId();
-  //     const info = await getUserInfo();
-  //     const token = await getInfo();
-  //     const expired = await hasTokenExpired();
-
-  //     setUserId(id);
-  //     setUserInfo(info);
-  //     setTokenInfo(token);
-  //     if (expired !== undefined) {
-  //       setIsTokenExpired(expired);
-  //     } else {
-  //       setIsTokenExpired(false);
-  //     }
-  //   };
-
-  //   fetchTokenInfo();
-  // }, []);
-
   const handleLogout = async () => {
     await AsyncStorage.removeItem("accessToken");
     navigation.navigate("Auth")
@@ -59,12 +34,22 @@ const UserAccountScreen = ({navigation}: any) => {
         </TouchableOpacity>
       </View>
 
-      <View style={styles.profileContainer}>
+      {/* <View style={styles.profileContainer}>
         <SettingComponent icon="user" heading="Account" subheading="Edit Profile" subtitle="Change Password" />
         <SettingComponent icon="setting" heading="Setting" subheading="Theme" subtitle="Permissions" />
         <SettingComponent icon="dollar" heading="Offers and Referrals" subheading="Offer" subtitle="Referrals" />
         <SettingComponent icon="info" heading="About" subheading="About Movies" subtitle="more" />
-      </View>     
+      </View> */}
+
+      <View>
+        <TouchableOpacity onPress={()=> {
+          navigation.navigate("EditProfile")
+        }}>
+          <SettingComponent icon="user" heading="Account" subheading="Edit Profile" subtitle="Change Password" />
+        </TouchableOpacity>
+      </View>
+
+
     </ScrollView>
   );
 };

@@ -6,7 +6,7 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 import { useMutation } from 'react-query';
 import { login } from '../api/auth/auth';
 import { BORDERRADIUS, COLORS, FONTFAMILY, FONTSIZE, SPACING } from '../theme/theme';
-import { getInfo, getUserId, getUserInfo, hasTokenExpired } from '../utils/Helpers';
+import { CommonActions } from '@react-navigation/native';
 
 const LoginScreen = ({navigation}: any) => {
     const [email, setEmail] = useState<string>("");
@@ -20,7 +20,12 @@ const LoginScreen = ({navigation}: any) => {
         onSuccess: async (data) => {
             setLoading(false);
             if(data.success){
-               navigation.navigate("Tab")
+               navigation.dispatch(
+                CommonActions.reset({
+                    index: 0,
+                    routes: [{name: "Tab"}],
+                })
+               )
             }else{
                 setErrorText("Invalid Credentials");
             }
@@ -49,8 +54,6 @@ const LoginScreen = ({navigation}: any) => {
         })
     }
     
- 
-
   return (
     <View style={styles.mainBody}>
       {/* <Loader loading={loading} /> */}
